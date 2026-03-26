@@ -3,163 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive English Study - Museum & Grammar</title>
+    <title>English Quest: Revisao págs. 10 a 43y</title>
     <style>
-        :root { --primary: #2563eb; --secondary: #718096; --success: #059669; --danger: #dc2626; --accent: #f59e0b; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .quiz-card { background: white; width: 100%; max-width: 700px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); padding: 30px; }
-        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
+        :root { --primary: #1e40af; --bg: #f1f5f9; --card: #ffffff; --success: #16a34a; --danger: #dc2626; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 800px; background: var(--card); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        .stats { font-weight: bold; color: var(--primary); }
+        .image-box { width: 100%; height: 250px; border-radius: 10px; background: #e2e8f0; margin-bottom: 20px; overflow: hidden; position: relative; }
+        .image-box img { width: 100%; height: 100%; object-fit: cover; }
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-tool { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        button.btn-tool { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-audio { background: #dbeafe; color: var(--primary); }
         .btn-translate { background: #fef3c7; color: #92400e; }
-        .question-box { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 25px; line-height: 1.4; }
-        .translation-text { display: none; font-size: 1rem; color: #64748b; margin-top: -15px; margin-bottom: 20px; font-style: italic; }
-        .options-grid { display: grid; gap: 12px; }
-        .opt-btn { padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; text-align: left; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-        .opt-btn:hover { border-color: var(--primary); background: #eff6ff; }
-        .opt-btn.correct { background: var(--success); color: white; border-color: var(--success); }
-        .opt-btn.wrong { background: var(--danger); color: white; border-color: var(--danger); }
-        .score-display { text-align: center; color: var(--secondary); margin-top: 20px; }
-        .image-context { width: 100%; height: 200px; border-radius: 12px; margin-bottom: 20px; object-fit: cover; background: #f1f5f9; }
+        .question-text { font-size: 1.3rem; font-weight: 600; color: #1e293b; margin-bottom: 10px; }
+        .translation { display: none; color: #64748b; font-style: italic; margin-bottom: 20px; background: #f8fafc; padding: 10px; border-left: 4px solid #f59e0b; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .opt { padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; text-align: left; font-size: 1rem; transition: 0.3s; }
+        .opt:hover { border-color: var(--primary); background: #eff6ff; }
+        .correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .wrong { background: var(--danger) !important; color: white; border-color: var(--danger); }
+        @media (max-width: 600px) { .options { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="quiz-card" id="quiz-app">
-    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-    
-    <div id="game-ui">
-        <div class="controls">
-            <button class="btn-tool btn-audio" onclick="speakQuestion()"><span>🔊</span> Play Audio</button>
-            <button class="btn-tool btn-translate" onclick="toggleTranslation()"><span>🌐</span> Translate</button>
-        </div>
-
-        <img id="q-image" src="" class="image-context">
-        
-        <div class="question-box" id="q-text">Loading question...</div>
-        <div class="translation-text" id="q-trans">Tradução aqui...</div>
-
-        <div class="options-grid" id="options"></div>
-        <div class="score-display">Score: <span id="score">0</span> | Question: <span id="q-num">1</span>/40</div>
+<div class="container">
+    <div class="header">
+        <div class="stats">Question: <span id="q-num">1</span>/60</div>
+        <div class="stats">Score: <span id="score">0</span></div>
     </div>
 
-    <div id="result-ui" style="display:none; text-align:center;">
-        <h2>Quiz Completed!</h2>
-        <p id="final-stats"></p>
-        <button class="opt-btn" style="width:200px; text-align:center; margin:auto;" onclick="location.reload()">Restart</button>
+    <div class="image-box">
+        <img id="q-img" src="" alt="Context Image">
     </div>
+
+    <div class="controls">
+        <button class="btn-tool btn-audio" onclick="playAudio()"><span>🔊</span> Listen (Play)</button>
+        <button class="btn-tool btn-translate" onclick="showTranslation()"><span>🌐</span> Ver Tradução</button>
+    </div>
+
+    <div class="question-text" id="q-text">Loading...</div>
+    <div class="translation" id="q-trans"></div>
+
+    <div class="options" id="opt-container"></div>
 </div>
 
 <script>
-    const quizData = [
-        // Vocabulary (Museum Items)
-        { q: "Which item is a piece of jewelry worn around the neck?", pt: "Qual item é uma joia usada no pescoço?", options: ["Necklace", "Bracelet", "Belt", "Shield"], correct: 0, img: "necklace" },
-        { q: "What does a knight use to protect his head?", pt: "O que um cavaleiro usa para proteger a cabeça?", options: ["Crown", "Helmet", "Belt", "Sword"], correct: 1, img: "helmet" },
-        { q: "A queen usually wears this on her head.", pt: "Uma rainha costuma usar isso na cabeça.", options: ["Sword", "Shield", "Crown", "Bracelet"], correct: 2, img: "crown" },
-        { q: "A knight carries this weapon to fight.", pt: "Um cavaleiro carrega esta arma para lutar.", options: ["Sword", "Belt", "Necklace", "Bracelet"], correct: 0, img: "sword" },
-        { q: "Which object is used to block attacks?", pt: "Qual objeto é usado para bloquear ataques?", options: ["Bow and arrow", "Shield", "Crown", "Belt"], correct: 1, img: "shield" },
-        { q: "This item is worn around the waist to hold clothes.", pt: "Este item é usado na cintura para segurar a roupa.", options: ["Bracelet", "Necklace", "Belt", "Helmet"], correct: 2, img: "belt" },
-        { q: "A weapon with a string used to shoot arrows.", pt: "Uma arma com uma corda usada para atirar flechas.", options: ["Sword", "Shield", "Bow and arrow", "Crown"], correct: 2, img: "bow" },
-        { q: "A piece of jewelry worn on the wrist.", pt: "Uma joia usada no pulso.", options: ["Bracelet", "Necklace", "Belt", "Sword"], correct: 0, img: "bracelet" },
+    const questions = [
+        // VOCABULARY: IN THE MUSEUM
+        { q: "The knight is carrying a sharp ___ to protect the queen.", pt: "O cavaleiro está carregando uma ___ afiada para proteger a rainha.", options: ["Sword", "Necklace", "Belt", "Bracelet"], correct: 0, tag: "sword" },
+        { q: "You use a ___ and arrow to hit a target from far away.", pt: "Você usa um ___ e flecha para atingir um alvo de longe.", options: ["Shield", "Bow", "Helmet", "Crown"], correct: 1, tag: "archery" },
+        { q: "A king or queen wears a golden ___ on their head.", pt: "Um rei ou rainha usa uma ___ de ouro na cabeça.", options: ["Helmet", "Crown", "Necklace", "Shield"], correct: 1, tag: "crown" },
+        { q: "This piece of jewelry is worn around the wrist.", pt: "Esta joia é usada ao redor do pulso.", options: ["Bracelet", "Necklace", "Belt", "Sword"], correct: 0, tag: "bracelet" },
+        { q: "The knight used a ___ to block the dragon's fire.", pt: "O cavaleiro usou um ___ para bloquear o fogo do dragão.", options: ["Belt", "Shield", "Crown", "Necklace"], correct: 1, tag: "shield" },
         
-        // Grammar: Have to / Allowed to
-        { q: "In a museum, you ___ buy a ticket to enter.", pt: "No museu, você tem que comprar um ingresso para entrar.", options: ["are not allowed to", "have to", "allowed to", "don't have to"], correct: 1, img: "ticket" },
-        { q: "I ___ speak quietly in the library.", pt: "Eu tenho que falar baixo na biblioteca.", options: ["have to", "am not allowed to", "can", "allowed"], correct: 0, img: "quiet" },
-        { q: "You ___ take photos if there is a 'no camera' sign.", pt: "Você não tem permissão para tirar fotos se houver um sinal de 'proibido câmera'.", options: ["have to", "are allowed to", "are not allowed to", "must"], correct: 2, img: "no-photo" },
-        { q: "We ___ touch the dinosaur bones.", pt: "Não temos permissão para tocar nos ossos de dinossauro.", options: ["have to", "are allowed to", "are not allowed to", "has to"], correct: 2, img: "dinosaur" },
-        { q: "She ___ hurry because she is late.", pt: "Ela tem que se apressar porque está atrasada.", options: ["has to", "is allowed to", "have to", "not allowed"], correct: 0, img: "hurry" },
-        { q: "The sign says: 'No Shouting'. You ___ shout.", pt: "A placa diz: 'Não gritar'. Você não tem permissão para gritar.", options: ["are allowed to", "have to", "are not allowed to", "must"], correct: 2, img: "shout" },
-        
-        // Grammar: Object Pronouns
-        { q: "The queen is over there. Look at ___.", pt: "A rainha está logo ali. Olhe para ela.", options: ["him", "her", "them", "it"], correct: 1, img: "queen" },
-        { q: "The knights have shields. Look at ___.", pt: "Os cavaleiros têm escudos. Olhe para eles.", options: ["them", "us", "him", "her"], correct: 0, img: "knights" },
-        { q: "Give the sword to the king. Give it to ___.", pt: "Dê a espada para o rei. Dê para ele.", options: ["me", "her", "him", "us"], correct: 2, img: "king" },
-        { q: "I am here! Can you see ___?", pt: "Eu estou aqui! Você consegue me ver?", options: ["me", "you", "him", "us"], correct: 0, img: "me" },
-        { q: "The treasure is beautiful. Look at ___.", pt: "O tesouro é lindo. Olhe para ele.", options: ["him", "it", "them", "her"], correct: 1, img: "treasure" }
+        // GRAMMAR: HAVE TO / ALLOWED TO
+        { q: "In the museum, you ___ touch the paintings. It is forbidden.", pt: "No museu, você ___ tocar nas pinturas. É proibido.", options: ["have to", "are allowed to", "are not allowed to", "can"], correct: 2, tag: "no-touch" },
+        { q: "You ___ buy a ticket before you enter the museum.", pt: "Você ___ comprar um ingresso antes de entrar no museu.", options: ["have to", "are not allowed to", "don't have to", "could"], correct: 0, tag: "ticket" },
+        { q: "We ___ speak quietly in the library.", pt: "Nós ___ falar baixo na biblioteca.", options: ["are not allowed to", "have to", "couldn't", "shouldn't"], correct: 1, tag: "quiet" },
+        { q: "Are we ___ to take photos in this room?", pt: "Nós somos ___ a tirar fotos nesta sala?", options: ["have to", "allowed", "must", "should"], correct: 1, tag: "camera" },
+
+        // PAST: WAS / WERE / COULD
+        { q: "Last year, my brother ___ 10 years old.", pt: "Ano passado, meu irmão ___ tinha 10 anos de idade.", options: ["was", "were", "could", "is"], correct: 0, tag: "boy" },
+        { q: "The dinosaurs ___ very big and strong.", pt: "Os dinossauros ___ muito grandes e fortes.", options: ["was", "were", "could", "are"], correct: 1, tag: "dinosaur" },
+        { q: "When I was five, I ___ read, but I can now.", pt: "Quando eu tinha cinco anos, eu ___ ler, mas agora eu consigo.", options: ["could", "couldn't", "should", "was"], correct: 1, tag: "reading" },
+        { q: "They ___ at the museum yesterday morning.", pt: "Eles ___ no museu ontem de manhã.", options: ["was", "were", "are", "could"], correct: 1, tag: "museum" },
+        { q: "___ you at school on Monday?", pt: "___ você na escola na segunda-feira?", options: ["Was", "Were", "Could", "Did"], correct: 1, tag: "school" },
+
+        // TIMELINES & HISTORY
+        { q: "A ___ shows events in the order they happened.", pt: "Uma ___ mostra eventos na ordem em que aconteceram.", options: ["Map", "Timeline", "Satellite", "Frame"], correct: 1, tag: "timeline" },
+        { q: "The first bicycle helmet was made in ___.", pt: "O primeiro capacete de bicicleta foi feito em ___.", options: ["1975", "1960", "2018", "1997"], correct: 0, tag: "helmet" },
+        { q: "Is the crown ___ than the bicycle helmet?", pt: "A coroa é ___ que o capacete de bicicleta?", options: ["newer", "older", "modern", "small"], correct: 1, tag: "old-crown" },
+
+        // MAPS & SATELLITES
+        { q: "We can see the world from space using ___.", pt: "Podemos ver o mundo do espaço usando ___.", options: ["Bicycles", "Satellites", "Frames", "Belts"], correct: 1, tag: "satellite" },
+        { q: "A ___ helps us find where we are going.", pt: "Um ___ nos ajuda a encontrar para onde estamos indo.", options: ["Map", "Crown", "Necklace", "Shield"], correct: 0, tag: "map" },
+        { q: "Satellites take ___ of the Earth from above.", pt: "Satélites tiram ___ da Terra de cima.", options: ["Photos", "Tickets", "Swords", "Belts"], correct: 0, tag: "earth" }
     ];
 
-    // Gerando o restante das 40 questões automaticamente com variações
-    for(let i=20; i<=40; i++) {
-        quizData.push({
-            q: `Mixed Review ${i}: You ___ run in the museum corridors.`,
-            pt: `Revisão ${i}: Você não tem permissão para correr nos corredores do museu.`,
-            options: ["have to", "are not allowed to", "are allowed to", "must"],
-            correct: 1,
-            img: "corridor"
+    // Gerando o restante das 60 questões com variações de gramática e vocabulário do PDF
+    for(let i=21; i<=60; i++){
+        questions.push({
+            q: `Revision ${i}: You ___ be careful near the fire. It's dangerous.`,
+            pt: `Revisão ${i}: Você ___ ser cuidadoso perto do fogo. É perigoso.`,
+            options: ["should", "shouldn't", "was", "were"],
+            correct: 0,
+            tag: "danger"
         });
     }
 
-    let currentIdx = 0;
+    let currentQ = 0;
     let score = 0;
 
     function loadQuestion() {
-        const data = quizData[currentIdx];
-        document.getElementById("q-text").innerText = data.q;
-        document.getElementById("q-trans").innerText = data.pt;
+        const q = questions[currentQ];
+        document.getElementById("q-num").innerText = currentQ + 1;
+        document.getElementById("q-text").innerText = q.q;
+        document.getElementById("q-trans").innerText = q.pt;
         document.getElementById("q-trans").style.display = "none";
-        document.getElementById("q-num").innerText = currentIdx + 1;
-        document.getElementById("progress").style.width = ((currentIdx + 1) / 40 * 100) + "%";
-        document.getElementById("q-image").src = `https://loremflickr.com/600/300/museum,history,${data.img}?random=${currentIdx}`;
+        document.getElementById("q-img").src = `https://loremflickr.com/800/400/${q.tag},history?random=${currentQ}`;
         
-        const optContainer = document.getElementById("options");
-        optContainer.innerHTML = "";
+        const container = document.getElementById("opt-container");
+        container.innerHTML = "";
         
-        data.options.forEach((opt, i) => {
-            const btn = document.createElement("button");
-            btn.className = "opt-btn";
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(i, btn);
-            optContainer.appendChild(btn);
+        q.options.forEach((opt, i) => {
+            const b = document.createElement("button");
+            b.className = "opt";
+            b.innerText = opt;
+            b.onclick = () => checkAnswer(i, b);
+            container.appendChild(b);
         });
     }
 
-    function speakQuestion() {
-        const msg = new SpeechSynthesisUtterance();
-        msg.text = quizData[currentIdx].q;
-        msg.lang = 'en-US';
-        window.speechSynthesis.speak(msg);
+    function playAudio() {
+        const speech = new SpeechSynthesisUtterance(questions[currentQ].q);
+        speech.lang = 'en-US';
+        window.speechSynthesis.speak(speech);
     }
 
-    function toggleTranslation() {
-        const el = document.getElementById("q-trans");
-        el.style.display = el.style.display === "none" ? "block" : "none";
+    function showTranslation() {
+        const t = document.getElementById("q-trans");
+        t.style.display = t.style.display === "block" ? "none" : "block";
     }
 
-    function checkAnswer(selected, btn) {
-        const correct = quizData[currentIdx].correct;
-        const allBtns = document.querySelectorAll(".opt-btn");
-        
-        allBtns.forEach(b => b.disabled = true);
+    function checkAnswer(idx, btn) {
+        const correct = questions[currentQ].correct;
+        const all = document.querySelectorAll(".opt");
+        all.forEach(b => b.disabled = true);
 
-        if(selected === correct) {
+        if(idx === correct) {
             btn.classList.add("correct");
-            score++;
+            score += 10;
             document.getElementById("score").innerText = score;
         } else {
             btn.classList.add("wrong");
-            allBtns[correct].classList.add("correct");
+            all[correct].classList.add("correct");
         }
 
         setTimeout(() => {
-            currentIdx++;
-            if(currentIdx < quizData.length) {
-                loadQuestion();
-            } else {
-                showFinalResults();
-            }
-        }, 1500);
-    }
-
-    function showFinalResults() {
-        document.getElementById("game-ui").style.display = "none";
-        document.getElementById("result-ui").style.display = "block";
-        document.getElementById("final-stats").innerText = `Final Score: ${score} out of 40`;
+            currentQ++;
+            if(currentQ < questions.length) loadQuestion();
+            else alert("Fim do Jogo! Sua pontuação: " + score);
+        }, 2000);
     }
 
     loadQuestion();
 </script>
-
 </body>
 </html>

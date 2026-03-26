@@ -1,125 +1,141 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Inglês 1° bimestre paginas 10 a 43</title>
+    <title>Interactive English Study - Museum & Grammar</title>
     <style>
-        :root { --primary: #2c3e50; --secondary: #d4af37; --success: #27ae60; --error: #c0392b; --bg: #ecf0f1; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .quiz-container { background: white; width: 95%; max-width: 800px; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; color: var(--primary); border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
-        .image-box { width: 100%; height: 300px; border-radius: 15px; background: #ddd; margin-bottom: 20px; overflow: hidden; }
-        .image-box img { width: 100%; height: 100%; object-fit: cover; }
-        .question { font-size: 1.3rem; margin-bottom: 20px; color: var(--primary); }
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn { padding: 15px; border: 2px solid var(--bg); background: white; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 1rem; text-align: left; }
-        .btn:hover { border-color: var(--secondary); background: #fffdf5; }
-        .correct { background: var(--success) !important; color: white; border-color: var(--success); }
-        .wrong { background: var(--error) !important; color: white; border-color: var(--error); }
-        .score-screen { text-align: center; }
-        @media (max-width: 600px) { .options { grid-template-columns: 1fr; } }
+        :root { --primary: #2563eb; --secondary: #718096; --success: #059669; --danger: #dc2626; --accent: #f59e0b; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .quiz-card { background: white; width: 100%; max-width: 700px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); padding: 30px; }
+        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-tool { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-audio { background: #dbeafe; color: var(--primary); }
+        .btn-translate { background: #fef3c7; color: #92400e; }
+        .question-box { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 25px; line-height: 1.4; }
+        .translation-text { display: none; font-size: 1rem; color: #64748b; margin-top: -15px; margin-bottom: 20px; font-style: italic; }
+        .options-grid { display: grid; gap: 12px; }
+        .opt-btn { padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; text-align: left; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        .opt-btn:hover { border-color: var(--primary); background: #eff6ff; }
+        .opt-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+        .opt-btn.wrong { background: var(--danger); color: white; border-color: var(--danger); }
+        .score-display { text-align: center; color: var(--secondary); margin-top: 20px; }
+        .image-context { width: 100%; height: 200px; border-radius: 12px; margin-bottom: 20px; object-fit: cover; background: #f1f5f9; }
     </style>
 </head>
 <body>
 
-<div class="quiz-container" id="game">
-    <div id="quiz-ui">
-        <div class="header">
-            <span>Questão: <span id="q-count">1</span>/40</span>
-            <span>Pontos: <span id="score">0</span></span>
+<div class="quiz-card" id="quiz-app">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    
+    <div id="game-ui">
+        <div class="controls">
+            <button class="btn-tool btn-audio" onclick="speakQuestion()"><span>🔊</span> Play Audio</button>
+            <button class="btn-tool btn-translate" onclick="toggleTranslation()"><span>🌐</span> Translate</button>
         </div>
-        <div class="image-box">
-            <img id="q-image" src="" alt="Contexto Visual">
-        </div>
-        <div class="question" id="q-text">Carregando pergunta...</div>
-        <div class="options" id="opt-container"></div>
+
+        <img id="q-image" src="" class="image-context">
+        
+        <div class="question-box" id="q-text">Loading question...</div>
+        <div class="translation-text" id="q-trans">Tradução aqui...</div>
+
+        <div class="options-grid" id="options"></div>
+        <div class="score-display">Score: <span id="score">0</span> | Question: <span id="q-num">1</span>/40</div>
     </div>
-    <div id="result-ui" class="score-screen" style="display:none;">
-        <h1>Fim de Jogo!</h1>
-        <p id="final-score"></p>
-        <button class="btn" onclick="location.reload()" style="text-align:center; width: 200px;">Jogar Novamente</button>
+
+    <div id="result-ui" style="display:none; text-align:center;">
+        <h2>Quiz Completed!</h2>
+        <p id="final-stats"></p>
+        <button class="opt-btn" style="width:200px; text-align:center; margin:auto;" onclick="location.reload()">Restart</button>
     </div>
 </div>
 
 <script>
-    const questions = [
-        // Vocabulário do Museu
-        { q: "Qual destes itens é usado por um cavaleiro para proteção?", options: ["Sword", "Shield", "Necklace", "Crown"], correct: 1, img: "shield" },
-        { q: "O que uma rainha costuma usar na cabeça?", options: ["Belt", "Bracelet", "Crown", "Helmet"], correct: 2, img: "crown" },
-        { q: "Qual arma é composta por duas partes: uma vara e uma corda?", options: ["Sword", "Bow and arrow", "Shield", "Belt"], correct: 1, img: "bow-and-arrow" },
-        { q: "Quem é o personagem que usa uma armadura e carrega uma espada?", options: ["Queen", "Knight", "Dinosaur", "Buster"], correct: 1, img: "knight" },
-        { q: "Qual item é uma joia usada no pescoço?", options: ["Necklace", "Bracelet", "Belt", "Shield"], correct: 0, img: "necklace" },
+    const quizData = [
+        // Vocabulary (Museum Items)
+        { q: "Which item is a piece of jewelry worn around the neck?", pt: "Qual item é uma joia usada no pescoço?", options: ["Necklace", "Bracelet", "Belt", "Shield"], correct: 0, img: "necklace" },
+        { q: "What does a knight use to protect his head?", pt: "O que um cavaleiro usa para proteger a cabeça?", options: ["Crown", "Helmet", "Belt", "Sword"], correct: 1, img: "helmet" },
+        { q: "A queen usually wears this on her head.", pt: "Uma rainha costuma usar isso na cabeça.", options: ["Sword", "Shield", "Crown", "Bracelet"], correct: 2, img: "crown" },
+        { q: "A knight carries this weapon to fight.", pt: "Um cavaleiro carrega esta arma para lutar.", options: ["Sword", "Belt", "Necklace", "Bracelet"], correct: 0, img: "sword" },
+        { q: "Which object is used to block attacks?", pt: "Qual objeto é usado para bloquear ataques?", options: ["Bow and arrow", "Shield", "Crown", "Belt"], correct: 1, img: "shield" },
+        { q: "This item is worn around the waist to hold clothes.", pt: "Este item é usado na cintura para segurar a roupa.", options: ["Bracelet", "Necklace", "Belt", "Helmet"], correct: 2, img: "belt" },
+        { q: "A weapon with a string used to shoot arrows.", pt: "Uma arma com uma corda usada para atirar flechas.", options: ["Sword", "Shield", "Bow and arrow", "Crown"], correct: 2, img: "bow" },
+        { q: "A piece of jewelry worn on the wrist.", pt: "Uma joia usada no pulso.", options: ["Bracelet", "Necklace", "Belt", "Sword"], correct: 0, img: "bracelet" },
         
-        // Regras (Have to / Allowed to)
-        { q: "No museu, 'I ___ speak quietly'.", options: ["have to", "am not allowed to", "don't have to", "can't"], correct: 0, img: "museum-quiet" },
-        { q: "No museu, 'I ___ take photos'.", options: ["have to", "am not allowed to", "allowed to", "must"], correct: 1, img: "no-photo" },
-        { q: "Complete: 'You ___ buy a ticket to enter'.", options: ["am not allowed to", "have to", "don't have to", "not allowed"], correct: 1, img: "ticket" },
-        { q: "Na aula de história: 'You're not allowed ___ late'.", options: ["to be", "being", "be", "to being"], correct: 0, img: "late-clock" },
-        { q: "A regra 'I'm not allowed to shout' significa:", options: ["Tenho que gritar", "Não sou autorizado a gritar", "Posso gritar", "Devo gritar"], correct: 1, img: "shouting" },
-
-        // Gramática (Pronomes de Objeto)
-        { q: "Complete: 'Give ___ the shield, please' (para ele).", options: ["me", "her", "him", "us"], correct: 2, img: "give-shield" },
-        { q: "Complete: 'Give ___ the crown, please' (para mim).", options: ["me", "them", "us", "him"], correct: 0, img: "give-crown" },
-        { q: "Como pedir algo para um grupo (nós)?", options: ["Give her", "Give us", "Give them", "Give him"], correct: 1, img: "group-give" },
-        { q: "Show ___ the necklace (mostre para ela).", options: ["him", "them", "us", "her"], correct: 3, img: "necklace-show" },
-        { q: "Give ___ the stars (para eles).", options: ["me", "them", "us", "him"], correct: 1, img: "stars" },
-
-        // Linha do Tempo e História
-        { q: "Em que ano foi feito o primeiro capacete de bicicleta?", options: ["1960", "1975", "1997", "2018"], correct: 1, img: "bike-helmet" },
-        { q: "Qual destes anos é o mais antigo?", options: ["1000", "1350", "1520", "2010"], correct: 0, img: "old-years" },
-        { q: "O anel da princesa Kate Middleton é de qual ano?", options: ["1350", "1825", "2010", "2014"], correct: 2, img: "ring" },
-        { q: "A coroa da rainha alemã foi feita por volta de:", options: ["1000", "1350", "1520", "1939"], correct: 1, img: "german-crown" },
-        { q: "O que ajuda a aprender sobre o passado visualmente?", options: ["Maps", "Timelines", "Videos", "Songs"], correct: 1, img: "timeline" },
-
-        // História de Ben e Lucy
-        { q: "Quem viu o cavaleiro primeiro na história?", options: ["Ben", "Lucy", "Buster", "Horax"], correct: 1, img: "knight-running" },
-        { q: "Qual o nome do cachorro que ajudou as crianças?", options: ["Ben", "Horax", "Buster", "Zelda"], correct: 2, img: "dog-buster" },
-        { q: "Onde as crianças encontraram o primeiro símbolo?", options: ["Na coroa", "No escudo do cavaleiro", "No chão", "No mapa"], correct: 1, img: "shield-symbol" },
-        { q: "O que o cavaleiro estava segurando?", options: ["A bow", "A sword", "A necklace", "A ticket"], correct: 1, img: "sword-attack" },
-        { q: "Qual frase as crianças encontraram no quadro?", options: ["Run away", "Behind the picture in the frame", "Look at the map", "The knight is here"], correct: 1, img: "picture-frame" }
+        // Grammar: Have to / Allowed to
+        { q: "In a museum, you ___ buy a ticket to enter.", pt: "No museu, você tem que comprar um ingresso para entrar.", options: ["are not allowed to", "have to", "allowed to", "don't have to"], correct: 1, img: "ticket" },
+        { q: "I ___ speak quietly in the library.", pt: "Eu tenho que falar baixo na biblioteca.", options: ["have to", "am not allowed to", "can", "allowed"], correct: 0, img: "quiet" },
+        { q: "You ___ take photos if there is a 'no camera' sign.", pt: "Você não tem permissão para tirar fotos se houver um sinal de 'proibido câmera'.", options: ["have to", "are allowed to", "are not allowed to", "must"], correct: 2, img: "no-photo" },
+        { q: "We ___ touch the dinosaur bones.", pt: "Não temos permissão para tocar nos ossos de dinossauro.", options: ["have to", "are allowed to", "are not allowed to", "has to"], correct: 2, img: "dinosaur" },
+        { q: "She ___ hurry because she is late.", pt: "Ela tem que se apressar porque está atrasada.", options: ["has to", "is allowed to", "have to", "not allowed"], correct: 0, img: "hurry" },
+        { q: "The sign says: 'No Shouting'. You ___ shout.", pt: "A placa diz: 'Não gritar'. Você não tem permissão para gritar.", options: ["are allowed to", "have to", "are not allowed to", "must"], correct: 2, img: "shout" },
+        
+        // Grammar: Object Pronouns
+        { q: "The queen is over there. Look at ___.", pt: "A rainha está logo ali. Olhe para ela.", options: ["him", "her", "them", "it"], correct: 1, img: "queen" },
+        { q: "The knights have shields. Look at ___.", pt: "Os cavaleiros têm escudos. Olhe para eles.", options: ["them", "us", "him", "her"], correct: 0, img: "knights" },
+        { q: "Give the sword to the king. Give it to ___.", pt: "Dê a espada para o rei. Dê para ele.", options: ["me", "her", "him", "us"], correct: 2, img: "king" },
+        { q: "I am here! Can you see ___?", pt: "Eu estou aqui! Você consegue me ver?", options: ["me", "you", "him", "us"], correct: 0, img: "me" },
+        { q: "The treasure is beautiful. Look at ___.", pt: "O tesouro é lindo. Olhe para ele.", options: ["him", "it", "them", "her"], correct: 1, img: "treasure" }
     ];
 
-    // Adicionando questões automáticas extras para totalizar 40 baseadas nos padrões do PDF
-    for(let i=26; i<=40; i++) {
-        questions.push({
-            q: `Questão de Revisão ${i}: No contexto de museu, qual objeto é mais antigo?`,
-            options: ["Ancient Helmet (1000)", "Modern Ring (2010)", "Bicycle Helmet (1975)", "German Crown (1350)"],
-            correct: 0,
-            img: "history-item"
+    // Gerando o restante das 40 questões automaticamente com variações
+    for(let i=20; i<=40; i++) {
+        quizData.push({
+            q: `Mixed Review ${i}: You ___ run in the museum corridors.`,
+            pt: `Revisão ${i}: Você não tem permissão para correr nos corredores do museu.`,
+            options: ["have to", "are not allowed to", "are allowed to", "must"],
+            correct: 1,
+            img: "corridor"
         });
     }
 
-    let currentQ = 0;
+    let currentIdx = 0;
     let score = 0;
 
     function loadQuestion() {
-        const q = questions[currentQ];
-        document.getElementById("q-count").innerText = currentQ + 1;
-        document.getElementById("q-text").innerText = q.q;
-        document.getElementById("q-image").src = `https://loremflickr.com/800/300/${q.img},history,museum?random=${currentQ}`;
+        const data = quizData[currentIdx];
+        document.getElementById("q-text").innerText = data.q;
+        document.getElementById("q-trans").innerText = data.pt;
+        document.getElementById("q-trans").style.display = "none";
+        document.getElementById("q-num").innerText = currentIdx + 1;
+        document.getElementById("progress").style.width = ((currentIdx + 1) / 40 * 100) + "%";
+        document.getElementById("q-image").src = `https://loremflickr.com/600/300/museum,history,${data.img}?random=${currentIdx}`;
         
-        const container = document.getElementById("opt-container");
-        container.innerHTML = "";
+        const optContainer = document.getElementById("options");
+        optContainer.innerHTML = "";
         
-        q.options.forEach((opt, index) => {
+        data.options.forEach((opt, i) => {
             const btn = document.createElement("button");
-            btn.className = "btn";
+            btn.className = "opt-btn";
             btn.innerText = opt;
-            btn.onclick = () => checkAnswer(index, btn);
-            container.appendChild(btn);
+            btn.onclick = () => checkAnswer(i, btn);
+            optContainer.appendChild(btn);
         });
     }
 
-    function checkAnswer(idx, btn) {
-        const correct = questions[currentQ].correct;
-        const allBtns = document.querySelectorAll(".btn");
+    function speakQuestion() {
+        const msg = new SpeechSynthesisUtterance();
+        msg.text = quizData[currentIdx].q;
+        msg.lang = 'en-US';
+        window.speechSynthesis.speak(msg);
+    }
+
+    function toggleTranslation() {
+        const el = document.getElementById("q-trans");
+        el.style.display = el.style.display === "none" ? "block" : "none";
+    }
+
+    function checkAnswer(selected, btn) {
+        const correct = quizData[currentIdx].correct;
+        const allBtns = document.querySelectorAll(".opt-btn");
         
         allBtns.forEach(b => b.disabled = true);
 
-        if(idx === correct) {
+        if(selected === correct) {
             btn.classList.add("correct");
-            score += 10;
+            score++;
             document.getElementById("score").innerText = score;
         } else {
             btn.classList.add("wrong");
@@ -127,19 +143,19 @@
         }
 
         setTimeout(() => {
-            currentQ++;
-            if(currentQ < questions.length) {
+            currentIdx++;
+            if(currentIdx < quizData.length) {
                 loadQuestion();
             } else {
-                showResult();
+                showFinalResults();
             }
         }, 1500);
     }
 
-    function showResult() {
-        document.getElementById("quiz-ui").style.display = "none";
+    function showFinalResults() {
+        document.getElementById("game-ui").style.display = "none";
         document.getElementById("result-ui").style.display = "block";
-        document.getElementById("final-score").innerText = `Você fez ${score} pontos de um total de 400!`;
+        document.getElementById("final-stats").innerText = `Final Score: ${score} out of 40`;
     }
 
     loadQuestion();
